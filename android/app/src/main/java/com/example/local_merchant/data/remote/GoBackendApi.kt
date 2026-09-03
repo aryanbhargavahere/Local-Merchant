@@ -1,5 +1,6 @@
 package com.example.local_merchant.data.remote
 
+import com.example.local_merchant.config.AppConfig
 import com.example.local_merchant.data.model.ChatMessage
 import com.example.local_merchant.data.model.ChatSummary
 import com.example.local_merchant.data.model.DashboardStatsResponse
@@ -73,8 +74,6 @@ interface GoBackendApi {
 
 // 2. The Client Builder (The Engine)
 object ApiClient {
-    private const val BASE_URL = "http://10.98.38.37:8080/"
-
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
@@ -87,7 +86,7 @@ object ApiClient {
 
     val retrofitApi: GoBackendApi by lazy {
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(AppConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

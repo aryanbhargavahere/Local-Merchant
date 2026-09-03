@@ -1,8 +1,18 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
 }
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+val hostIp = localProperties.getProperty("DEV_HOST_IP") ?: "10.0.2.2"
 
 android {
     namespace = "com.example.local_merchant"
@@ -18,6 +28,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "HOST_IP", "\"$hostIp\"")
     }
 
     buildTypes {
@@ -33,6 +44,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

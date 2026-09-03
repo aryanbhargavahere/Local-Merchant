@@ -2,6 +2,7 @@ package com.example.local_merchant.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.local_merchant.config.AppConfig
 import com.example.local_merchant.data.local.ChatEntity
 import com.example.local_merchant.data.model.ChatSummary
 import com.example.local_merchant.data.repository.MarketplaceRepository
@@ -74,7 +75,8 @@ class ChatViewModel(
             }
         }
 
-        val url = "ws://10.98.38.37:8080/ws/chat?conversation_id=$conversationId&user_id=$currentUserId"
+        // Change it to this:
+        val url = "${AppConfig.WS_URL}ws/chat?conversation_id=$conversationId&user_id=$currentUserId"
         val request = Request.Builder().url(url).build()
 
         webSocket = okHttpClient.newWebSocket(request, object : WebSocketListener() {
