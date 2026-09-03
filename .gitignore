@@ -1,0 +1,14 @@
+# Android & Gradle
+.gradle/
+build/
+app/build/
+*.apk
+*.aab
+local.properties
+.idea/
+
+# Go Backend
+bin/
+vendor/
+.env
+*.exe
