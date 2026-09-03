@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class BuyerProfileViewModel(
-    private val repository: MarketplaceRepository, // Kept to avoid breaking your ViewModelFactory
+    private val repository: MarketplaceRepository,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
@@ -25,7 +25,6 @@ class BuyerProfileViewModel(
 
     private fun loadProfileData() {
         viewModelScope.launch {
-            // Combine both flows from DataStore to update the UI instantly
             sessionManager.buyerNameFlow.combine(sessionManager.buyerPhoneFlow) { name, phone ->
                 Pair(name, phone)
             }.collect { (name, phone) ->

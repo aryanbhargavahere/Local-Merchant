@@ -19,7 +19,6 @@ class BuyerInboxViewModel(private val repository: MarketplaceRepository) : ViewM
 
     private fun fetchRealInbox() {
         viewModelScope.launch {
-            // We are now collecting the dynamic bridged data instead of fake API data!
             repository.getRealInboxSummaries().collect { activeChats ->
                 _inboxState.value = activeChats
             }

@@ -17,7 +17,6 @@ class BuyerDashboardViewModel(
     sealed class DashboardState {
         object Loading : DashboardState()
 
-        // This state now holds everything we need for dynamic filtering
         data class Success(
             val allMerchants: List<MerchantData>,
             val filteredMerchants: List<MerchantData>,
@@ -43,12 +42,11 @@ class BuyerDashboardViewModel(
                 if (response.isSuccessful && response.body() != null) {
                     val merchants = response.body()!!
 
-                    // Dynamically extract unique services from the live data!
                     val extractedCategories = listOf("All") + merchants.map { it.service }.distinct().sorted()
 
                     _uiState.value = DashboardState.Success(
                         allMerchants = merchants,
-                        filteredMerchants = merchants, // Initially show all
+                        filteredMerchants = merchants,
                         categories = extractedCategories,
                         selectedCategory = "All"
                     )
@@ -61,7 +59,6 @@ class BuyerDashboardViewModel(
         }
     }
 
-    // Function to handle category chip clicks
     fun filterByCategory(category: String) {
         val currentState = _uiState.value
         if (currentState is DashboardState.Success) {

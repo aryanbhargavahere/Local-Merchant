@@ -20,10 +20,10 @@ import com.example.local_merchant.ui.components.Background
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AgentParametersScreen(
-    currentBaseRate: Int, // 🛑 Dynamic Int from ViewModel/DataStore
-    currentFloorRate: Int, // 🛑 Dynamic Int from ViewModel/DataStore
+    currentBaseRate: Int,
+    currentFloorRate: Int,
     onBack: () -> Unit,
-    onSaveParameters: (Int, Int) -> Unit // 🛑 Sends the new data back out!
+    onSaveParameters: (Int, Int) -> Unit
 ) {
     var baseRate by remember { mutableStateOf(currentBaseRate.toString()) }
     var floorRate by remember { mutableStateOf(currentFloorRate.toString()) }
@@ -57,10 +57,9 @@ fun AgentParametersScreen(
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
 
-                // Base Rate Input
                 OutlinedTextField(
                     value = baseRate,
-                    onValueChange = { baseRate = it.filter { char -> char.isDigit() } }, // 🛑 Safety: Digits only
+                    onValueChange = { baseRate = it.filter { char -> char.isDigit() } },
                     label = { Text("Standard Base Rate (₹)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
@@ -77,10 +76,9 @@ fun AgentParametersScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Floor Rate Input
                 OutlinedTextField(
                     value = floorRate,
-                    onValueChange = { floorRate = it.filter { char -> char.isDigit() } }, // 🛑 Safety: Digits only
+                    onValueChange = { floorRate = it.filter { char -> char.isDigit() } },
                     label = { Text("Absolute Floor Rate (₹)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
@@ -104,10 +102,8 @@ fun AgentParametersScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Save Button
                 Button(
                     onClick = {
-                        // 🛑 Safely parse the strings back to Ints, defaulting to original if empty
                         val finalBase = baseRate.toIntOrNull() ?: currentBaseRate
                         val finalFloor = floorRate.toIntOrNull() ?: currentFloorRate
 

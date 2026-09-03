@@ -28,12 +28,10 @@ fun ChatListScreen(
     onChatClick: (String, String) -> Unit,
     onNavigateToDashboard: () -> Unit,
     onNavigateToProfile: () -> Unit
-    // 🛑 History Navigation Parameter Removed
 ) {
     Scaffold(
         containerColor = Color(0xFF0D0D12),
         bottomBar = {
-            // 🛑 Bottom Nav Call Updated
             MerchantBottomNav(
                 currentRoute = "chat_inbox",
                 onNavigateToDashboard = onNavigateToDashboard,
@@ -142,7 +140,6 @@ fun ChatListItem(chat: ChatSummary, onClick: () -> Unit) {
     }
 }
 
-// 🛑 Updated Bottom Nav (History Removed)
 @Composable
 fun MerchantBottomNav(
     currentRoute: String,

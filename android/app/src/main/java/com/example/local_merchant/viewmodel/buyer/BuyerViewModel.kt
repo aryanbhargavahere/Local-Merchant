@@ -40,7 +40,6 @@ class BuyerViewModel(
             val generatedId = repository.registerBuyer(name, phone, address)
 
             if (generatedId != null) {
-                // Dynamically save the real inputs to DataStore
                 sessionManager.saveBuyerDetails(
                     id = generatedId,
                     name = name,

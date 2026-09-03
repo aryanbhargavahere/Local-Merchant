@@ -19,19 +19,13 @@ var (
 	catalogMutex    sync.RWMutex
 	globalChatHub   *ChatHub
 
-	// 🛑 DEMO FAILSAFE: Global trackers so revenue survives even if the catalog restarts!
 	demoTotalRevenue int = 0
 	demoClosedDeals  int = 0
-
-	// 🛑 NO MORE HARDCODING: This array will store real completed deals!
 	demoCompletedDeals = make([]ActiveNegotiation, 0)
-
-	// (Note: merchantAIToggle and toggleMutex are defined in chat_hub.go to avoid redeclaration errors)
 )
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		log.Println("Note: .env file not found, using system environment.")
 	}
 
 	mux := http.NewServeMux()
@@ -40,8 +34,6 @@ func main() {
 	mux.HandleFunc("POST /api/merchants", handleRegisterMerchant)
 	mux.HandleFunc("GET /api/merchants", handleGetMerchants)
 	mux.HandleFunc("GET /api/merchants/dashboard", handleGetMerchantDashboard)
-	
-	// 🛑 THE FIX: Registered the toggle endpoint so the Android switch actually works!
 	mux.HandleFunc("POST /api/merchants/toggle-ai", handleToggleAI)
 
 	// Buyer Routes
@@ -73,7 +65,6 @@ func main() {
 		port = "8080"
 	}
 
-	log.Printf("🚀 Dynamic AI Marketplace Gateway active on port %s\n", port)
 	if err := http.ListenAndServe("0.0.0.0:"+port, enableCORS(mux)); err != nil {
 		log.Fatalf("Server stopped: %v", err)
 	}
@@ -108,9 +99,6 @@ func handlePaymentSuccess(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("🎉 Payment Confirmed: %s received ₹%d (ID: %s)\n", req.MerchantID, req.Amount, req.PaymentID)
-
-	// 1. Force the AI to send a Thank You message via WebSockets instantly
 	thankYouText := fmt.Sprintf("Payment of ₹%d received successfully via Razorpay! Thank you for the deal. I'll see you soon.", req.Amount)
 	thankYouMsg := ChatMessage{
 		ConversationID: req.MerchantID,
@@ -123,34 +111,27 @@ func handlePaymentSuccess(w http.ResponseWriter, r *http.Request) {
 	}
 	aiMemory.SaveMessage(req.MerchantID, "assistant", thankYouText)
 
-	// 2. Update Merchant Dashboard Stats (Bulletproof Demo Logic)
 	catalogMutex.Lock()
-	demoTotalRevenue += req.Amount 
+	demoTotalRevenue += req.Amount
 	demoClosedDeals += 1
 
-	// 🛑 NO MORE HARDCODING: Save the actual deal data!
 	newDeal := ActiveNegotiation{
 		ID:     req.PaymentID,
-		Name:   "Verified Customer", 
+		Name:   "Verified Customer",
 		Task:   "AI Negotiated Service",
 		Price:  fmt.Sprintf("%d", req.Amount),
 		Status: "Completed",
 	}
-	// Add it to the front of the list so newest is on top
 	demoCompletedDeals = append([]ActiveNegotiation{newDeal}, demoCompletedDeals...)
 
-	// Still try to update the specific merchant if they are in memory
 	for i, m := range merchantCatalog {
 		if m.ID == req.MerchantID {
-			fmt.Printf("📈 Updating dashboard stats for merchant %s\n", m.Name)
 			merchantCatalog[i].TodayRevenue += req.Amount
 			merchantCatalog[i].ClosedToday += 1
 			break
 		}
 	}
 	catalogMutex.Unlock()
-
-	// Return actual JSON so Android Retrofit doesn't crash
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
@@ -159,29 +140,25 @@ func handlePaymentSuccess(w http.ResponseWriter, r *http.Request) {
 // 📈 DASHBOARD ENDPOINT (With Graph Data)
 // ==========================================
 func handleGetMerchantDashboard(w http.ResponseWriter, r *http.Request) {
-	// 1. Grab the specific merchant's ID from the request
 	merchantID := r.URL.Query().Get("merchant_id")
 
-	// 2. Check if this specific merchant paused their AI!
 	toggleMutex.RLock()
 	isAIOff := merchantAIToggle[merchantID]
 	toggleMutex.RUnlock()
 
-	// Use our global failsafe variables so it ALWAYS works for the demo
 	revenue := demoTotalRevenue
 	closed := demoClosedDeals
 
-	// 🛑 NO MORE HARDCODING: Mathematically generate a realistic graph based on REAL revenue!
 	var trend []int
 	if revenue > 0 {
 		trend = []int{
-			revenue / 2, 
-			revenue + 150, 
-			revenue - 100, 
-			revenue + 300, 
-			revenue / 3, 
-			revenue + 50, 
-			revenue, // Today is exactly accurate
+			revenue / 2,
+			revenue + 150,
+			revenue - 100,
+			revenue + 300,
+			revenue / 3,
+			revenue + 50,
+			revenue,
 		}
 	} else {
 		trend = []int{0, 0, 0, 0, 0, 0, 0}
@@ -190,14 +167,12 @@ func handleGetMerchantDashboard(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	stats := DashboardStats{
 		MerchantID:   merchantID,
-		IsActive:     !isAIOff, // 🛑 Connected perfectly to the toggle map!
+		IsActive:     !isAIOff,
 		TodayRevenue: revenue,
 		ClosedToday:  closed,
-		RevenueTrend: trend, 
+		RevenueTrend: trend,
 		ActiveDeals:  0,
-		
-		// 🛑 NO MORE HARDCODING: Pass the real deals we just saved!
-		Negotiations: demoCompletedDeals, 
+		Negotiations: demoCompletedDeals,
 	}
 	json.NewEncoder(w).Encode(stats)
 }
@@ -213,12 +188,9 @@ func handleCreateOrder(w http.ResponseWriter, r *http.Request) {
 
 	orderID, err := createRazorpayOrder(reqData.Amount)
 	if err != nil {
-		fmt.Printf("❌ Razorpay API Error: %v\n", err)
 		http.Error(w, `{"error": "Failed to contact Razorpay"}`, http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Printf("✅ Generated Razorpay Order: %s for ₹%d\n", orderID, reqData.Amount)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
@@ -405,7 +377,6 @@ func handleInteractiveNegotiate(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// 🛑 Helper function converting INR to Paise for Razorpay
 func createRazorpayOrder(amountINR int) (string, error) {
 	keyID := os.Getenv("RAZORPAY_KEY_ID")
 	keySecret := os.Getenv("RAZORPAY_KEY_SECRET")
@@ -462,7 +433,6 @@ func handleGetChatHistory(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(history)
 }
 
-// 🛑 ENDPOINT: Let the merchant pause/resume the AI
 func handleToggleAI(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		MerchantID string `json:"merchant_id"`
@@ -476,12 +446,6 @@ func handleToggleAI(w http.ResponseWriter, r *http.Request) {
 	toggleMutex.Lock()
 	merchantAIToggle[req.MerchantID] = req.IsAIOff
 	toggleMutex.Unlock()
-
-	status := "ACTIVE"
-	if req.IsAIOff {
-		status = "PAUSED"
-	}
-	fmt.Printf("⚙️ Merchant %s changed AI Status to: %s\n", req.MerchantID, status)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})

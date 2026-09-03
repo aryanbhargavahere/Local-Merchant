@@ -13,7 +13,6 @@ class MerchantViewModel(
     private val repository: MarketplaceRepository
 ) : ViewModel() {
 
-    // Define the possible states for the UI to observe
     sealed class SetupState {
         object Idle : SetupState()
         object Loading : SetupState()
@@ -30,9 +29,8 @@ class MerchantViewModel(
         phone: String,
         baseRate: Int,
         floorRate: Int,
-        sessionManager: SessionManager // <-- Passed in from the Composable
+        sessionManager: SessionManager
     ) {
-        // 1. Prevent bad data from hitting your Go server
         if (name.isBlank() || service.isBlank() || phone.isBlank()) {
             _setupState.value = SetupState.Error("Please fill out all fields.")
             return
@@ -43,12 +41,9 @@ class MerchantViewModel(
             return
         }
 
-        // 2. Trigger loading spinner on the UI
         _setupState.value = SetupState.Loading
 
-        // 3. Launch background coroutine for network request
         viewModelScope.launch {
-            // Note: This now returns a String? (the generated ID) instead of a Boolean
             val generatedId = repository.registerMerchant(
                 name = name,
                 service = service,
@@ -58,14 +53,12 @@ class MerchantViewModel(
             )
 
             if (generatedId != null) {
-                // Save the real ID to the device via DataStore!
                 sessionManager.saveMerchantDetails(
                     id = generatedId,
                     name = name,
                     phone = phone
                 )
 
-                // Now we can tell the UI it's safe to navigate
                 _setupState.value = SetupState.Success
             } else {
                 _setupState.value = SetupState.Error("Failed to deploy AI Agent. Is the Go server running?")
@@ -73,7 +66,6 @@ class MerchantViewModel(
         }
     }
 
-    // Call this after a successful navigation to reset the screen
     fun resetState() {
         _setupState.value = SetupState.Idle
     }

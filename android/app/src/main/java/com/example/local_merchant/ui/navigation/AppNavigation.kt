@@ -18,6 +18,7 @@ import com.example.local_merchant.ui.RoleSelection.RoleSelectionScreen
 import com.example.local_merchant.ui.Buyer.chat.NegotiationChatScreen
 import com.example.local_merchant.ui.Buyer.profile.BuyerEditProfileScreen
 import com.example.local_merchant.ui.buyer.checkout.CheckoutScreen
+import com.example.local_merchant.ui.buyer.profile.BuyerOrderData
 import com.example.local_merchant.ui.buyer.profile.BuyerProfileScreen
 import com.example.local_merchant.ui.buyer.profile.EditProfileScreen
 import com.example.local_merchant.ui.buyer.profile.OrderHistoryScreen
@@ -89,10 +90,6 @@ fun AppNavigation() {
                 }
             )
         }
-
-        // ==========================================
-        // 💼 SELLER FLOW
-        // ==========================================
 
         composable("merchant_setup") {
             val factory = remember { ViewModelFactory(repository, okHttpClient) }
@@ -189,10 +186,6 @@ fun AppNavigation() {
             )
         }
 
-        // ==========================================
-        // 🛒 BUYER FLOW
-        // ==========================================
-
         composable("buyer_setup") {
             val factory = remember { ViewModelFactory(repository, okHttpClient) }
             val buyerViewModel: BuyerViewModel = viewModel(factory = factory)
@@ -214,7 +207,7 @@ fun AppNavigation() {
 
             BuyerDashboardScreen(
                 viewModel = dashboardViewModel,
-                onNavigateToCamera = { /* Scrapped for demo */ },
+                onNavigateToCamera = { },
                 onNavigateToInbox = { navController.navigate("buyer_inbox") },
                 onNavigateToChat = { merchantId, merchantName ->
                     val safeName = if (merchantName.isNotBlank()) merchantName else "Merchant"
@@ -239,7 +232,6 @@ fun AppNavigation() {
         }
 
         composable(route = "buyer_chat/{merchantId}/{merchantName}") { backStackEntry ->
-
             val merchantId = backStackEntry.arguments?.getString("merchantId") ?: ""
             val merchantName = backStackEntry.arguments?.getString("merchantName") ?: "Merchant"
 
@@ -340,11 +332,9 @@ fun AppNavigation() {
             )
         }
 
-        // 🛑 COMPLETELY REAL-TIME: Instantly saves directly to your DataStore SessionManager
         composable("edit_profile") {
             val coroutineScope = rememberCoroutineScope()
 
-            // 🛑 CALLING THE NEW RENAME! (Hit Alt+Enter on this to import it)
             BuyerEditProfileScreen(
                 currentName = actualBuyerName ?: "",
                 currentPhone = actualBuyerPhone ?: "",
@@ -370,18 +360,12 @@ fun AppNavigation() {
             PaymentMethodsScreen(onBack = { navController.popBackStack() })
         }
 
-        // 🛑 DYNAMIC: Listens to the BuyerProfileViewModel for real past orders
         composable("order_history") {
             val factory = remember { ViewModelFactory(repository, okHttpClient, safeBuyerId, sessionManager) }
             val profileViewModel: BuyerProfileViewModel = viewModel(factory = factory)
 
-            // Assuming your profileState has a list of orders (e.g. pastOrders or history)
-            // Note: If you don't have this field in your state yet, just map it to an empty list for now
-            // until you write the backend method!
             val profileState by profileViewModel.state.collectAsState()
-
-            // Example map: val realOrders = profileState.pastOrders
-            val realOrders = emptyList<com.example.local_merchant.ui.buyer.profile.BuyerOrderData>()
+            val realOrders = emptyList<BuyerOrderData>()
 
             OrderHistoryScreen(
                 pastOrders = realOrders,

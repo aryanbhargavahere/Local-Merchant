@@ -5,7 +5,6 @@ import (
     "encoding/json"
     "fmt"
     "io"
-    "log"
     "net/http"
     "os"
 )
@@ -17,11 +16,7 @@ func CallGroq(systemPrompt, userPrompt string) (string, error) {
         return "", fmt.Errorf("GROQ_API_KEY is not configured")
     }
 
-    // 1. Logs the exact prompt being sent to the AI
-    log.Printf("🤖 [GROQ PROMPT]: %s\n", userPrompt)
-
     payload := GroqRequestPayload{
-        // Updated to the newest supported stable model
         Model: "qwen/qwen3.8-27b",
         Messages: []GroqMessage{
             {Role: "system", Content: systemPrompt},
@@ -51,7 +46,6 @@ func CallGroq(systemPrompt, userPrompt string) (string, error) {
     }
     defer resp.Body.Close()
 
-    // 🚨 Now it will print the EXACT reason Groq is rejecting the request!
     if resp.StatusCode != http.StatusOK {
         bodyBytes, _ := io.ReadAll(resp.Body)
         return "", fmt.Errorf("groq API error status: %d, body: %s", resp.StatusCode, string(bodyBytes))
@@ -66,9 +60,7 @@ func CallGroq(systemPrompt, userPrompt string) (string, error) {
         return "", fmt.Errorf("no response choices returned from Groq")
     }
 
-    // 2. Logs the exact JSON payload the AI returns before returning it to the program
     rawContent := groqResp.Choices[0].Message.Content
-    log.Printf("🧠 [GROQ RESPONSE]: %s\n", rawContent)
     return rawContent, nil
 }
 

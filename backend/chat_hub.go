@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"sync"
@@ -61,7 +60,6 @@ func (h *ChatHub) Run() {
 			}
 			h.Rooms[client.ConversationID][client] = true
 			h.Mutex.Unlock()
-			fmt.Printf("🔌 User %s joined conversation %s\n", client.UserID, client.ConversationID)
 
 		case client := <-h.Unregister:
 			h.Mutex.Lock()
@@ -73,10 +71,8 @@ func (h *ChatHub) Run() {
 				}
 			}
 			h.Mutex.Unlock()
-			fmt.Printf("🔌 User %s left conversation %s\n", client.UserID, client.ConversationID)
 
 		case message := <-h.Broadcast:
-			// 1. Broadcast message to the room securely
 			h.Mutex.Lock()
 			for client := range h.Rooms[message.ConversationID] {
 				if client.UserID != message.SenderID {
@@ -90,16 +86,12 @@ func (h *ChatHub) Run() {
 			}
 			h.Mutex.Unlock()
 
-			// 2. Check if the AI Auto-Pilot is paused by the merchant
 			toggleMutex.RLock()
 			isAIOff := merchantAIToggle[message.ConversationID]
 			toggleMutex.RUnlock()
 
-			// 3. Trigger AI only if sender is buyer AND AI is active
 			if isBuyer(message.SenderID) && !isAIOff {
 				go h.TriggerMerchantAI(message)
-			} else if isBuyer(message.SenderID) && isAIOff {
-				fmt.Printf("⏸️ AI is manually paused for %s.\n", message.ConversationID)
 			}
 		}
 	}
@@ -130,7 +122,6 @@ func (h *ChatHub) TriggerMerchantAI(incomingMsg ChatMessage) {
 		Text:           aiText,
 	}
 
-	fmt.Printf("🤖 Smart AI Agent generated response for %s\n", incomingMsg.ConversationID)
 	h.Broadcast <- aiResponse
 }
 
@@ -140,7 +131,6 @@ func generateSmartAIResponse(conversationID string, userText string, m Merchant)
         return "I am offline. (Missing GROQ_API_KEY)"
     }
 
-    // 1. Setup Prompt
     merchantPrompt := fmt.Sprintf(`You are %s, a professional providing %s. Your goal is to negotiate a service price with a customer and maximize profit.
 STRICT RULES:
 1. NEVER give DIY advice.
@@ -153,16 +143,14 @@ STRICT RULES:
 6. CLOSING: When you both agree on a final number, say EXACTLY: "Great, I can do it for ₹[The Agreed Amount]. Please click the 'Accept Deal' button at the top of your screen."
 7. CONTACT: Your phone number is %s. Give it out only after agreeing on the price.`, m.Name, m.Service, m.BaseRate, m.FloorRate, m.Phone)
 
-    // 2. Save user message and get updated context
-    aiMemory.GetHistory(conversationID, merchantPrompt) 
+    aiMemory.GetHistory(conversationID, merchantPrompt)
     aiMemory.SaveMessage(conversationID, "user", userText)
     currentHistory := aiMemory.GetHistory(conversationID, merchantPrompt)
 
-    // 3. Setup Groq Request
     payload := GroqRequestPayload{
         Model:       "openai/gpt-oss-20b",
         Messages:    currentHistory,
-        Temperature: 0.6, 
+        Temperature: 0.6,
     }
 
     payloadBytes, _ := json.Marshal(payload)
@@ -173,21 +161,10 @@ STRICT RULES:
     client := &http.Client{Timeout: 10 * time.Second}
     resp, err := client.Do(req)
 
-    // 4. DEMO DAY FALLBACK: Triggers if API key is invalid or Groq goes down
     if err != nil || resp.StatusCode != 200 {
-        // 🛑 DEBUG FIX: Print exact error to Ubuntu terminal
-        if resp != nil {
-            bodyBytes, _ := ioutil.ReadAll(resp.Body)
-            fmt.Printf("⚠️ GROQ API ERROR [%d]: %s\n", resp.StatusCode, string(bodyBytes))
-        } else if err != nil {
-            fmt.Printf("⚠️ NETWORK ERROR: %v\n", err)
-        }
-
-        fmt.Println("⚠️ API failed, triggering Demo Day Fallback...")
         fallbackPrice := m.BaseRate + (m.BaseRate * 25 / 100)
         fallbackText := fmt.Sprintf("I can definitely fix that for you. Based on my rates, I can do it for ₹%d. Does that work?", fallbackPrice)
-        
-        // 🛑 MEMORY FIX: Save fallback to memory so it doesn't repeat!
+
         aiMemory.SaveMessage(conversationID, "assistant", fallbackText)
         return fallbackText
     }
@@ -217,7 +194,6 @@ var upgrader = websocket.Upgrader{
 func ServeWs(hub *ChatHub, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
 		return
 	}
 
@@ -249,9 +225,9 @@ func (c *Client) readPump() {
 		}
 
 		var incoming struct {
-			ConversationID string `json:"merchantId"` // FIXED JSON TAG
-			SenderID       string `json:"sender"`     // FIXED JSON TAG
-			Text           string `json:"message"`    // FIXED JSON TAG
+			ConversationID string `json:"merchantId"`
+			SenderID       string `json:"sender"`
+			Text           string `json:"message"`
 		}
 
 		if err := json.Unmarshal(messageData, &incoming); err == nil {
@@ -260,7 +236,6 @@ func (c *Client) readPump() {
 				SenderID:       incoming.SenderID,
 				Text:           incoming.Text,
 			}
-			fmt.Printf("💬 Message in %s from %s: %s\n", msg.ConversationID, msg.SenderID, msg.Text)
 			c.Hub.Broadcast <- msg
 		}
 	}

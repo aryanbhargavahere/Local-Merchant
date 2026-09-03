@@ -19,7 +19,6 @@ class CheckoutViewModel(private val repository: MarketplaceRepository) : ViewMod
     fun fetchOrderId(finalPrice: Int) {
         viewModelScope.launch {
             _isLoading.value = true
-            // Dynamically fetch the real order ID from the Go backend
             val id = repository.generateRazorpayOrderId(finalPrice)
             _orderId.value = id
             _isLoading.value = false

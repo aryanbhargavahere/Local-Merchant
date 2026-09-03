@@ -22,7 +22,6 @@ class MerchantHistoryViewModel(
     private val _uiState = MutableStateFlow<HistoryUiState>(HistoryUiState.Loading)
     val uiState: StateFlow<HistoryUiState> = _uiState.asStateFlow()
 
-    // 🛑 THE FIX: We now pass the dynamic ID in when we want to load the data
     fun fetchDealHistory(merchantId: String) {
         viewModelScope.launch {
             _uiState.value = HistoryUiState.Loading

@@ -39,7 +39,6 @@ fun MerchantProfileScreen(
     merchantPhone: String,
     onNavigateToDashboard: () -> Unit,
     onNavigateToChats: () -> Unit,
-    // 🛑 History Navigation Parameter Removed
     onNavigateToParameters: () -> Unit,
     onNavigateToDealHistory: () -> Unit,
     onLogout: () -> Unit
@@ -64,7 +63,6 @@ fun MerchantProfileScreen(
         Scaffold(
             containerColor = Color.Transparent,
             bottomBar = {
-                // 🛑 Bottom Nav Call Updated
                 MerchantBottomNav(
                     currentRoute = "merchant_profile",
                     onNavigateToDashboard = onNavigateToDashboard,

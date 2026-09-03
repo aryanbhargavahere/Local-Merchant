@@ -85,10 +85,9 @@ fun ChatDetailScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .padding(horizontal = 16.dp),
-                reverseLayout = true, // Forces items to the bottom
+                reverseLayout = true,
                 contentPadding = PaddingValues(vertical = 16.dp)
             ) {
-                // Reverse the list because LazyColumn is reversed
                 items(messages.reversed()) { msg ->
                     MessageBubble(message = msg)
                     Spacer(modifier = Modifier.height(8.dp))
@@ -100,7 +99,6 @@ fun ChatDetailScreen(
 
 @Composable
 fun MessageBubble(message: ChatEntity) {
-    // Determine styles based on who sent the message
     val isFromMe = message.sender.equals("MERCHANT", ignoreCase = true)
     val bubbleColor = if (isFromMe) Color(0xFF0EA5E9) else Color(0xFF1E1E24)
     val alignment = if (isFromMe) Alignment.CenterEnd else Alignment.CenterStart

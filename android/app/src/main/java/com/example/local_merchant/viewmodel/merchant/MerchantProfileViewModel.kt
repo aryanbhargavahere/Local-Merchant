@@ -24,7 +24,6 @@ class MerchantProfileViewModel(
 
     private fun loadDynamicProfile() {
         viewModelScope.launch {
-            // Collect from the new Hybrid flow in the repository
             repository.getDynamicMerchantProfile(merchantId).collect { entity ->
                 if (entity != null) {
                     _state.value = MerchantProfileState(
@@ -34,11 +33,9 @@ class MerchantProfileViewModel(
                         phone = entity.phone,
                         rating = entity.rating,
                         jobsCompleted = entity.jobsCompleted,
-                        // This comes securely from the local Room DB via the repository
                         isBiometricsEnabled = entity.isBiometricsEnabled
                     )
                 } else {
-                    // Fallback to stop the loading spinner if no data exists at all
                     _state.update { it.copy(isLoading = false) }
                 }
             }
@@ -47,10 +44,7 @@ class MerchantProfileViewModel(
 
     fun toggleBiometrics(enabled: Boolean) {
         viewModelScope.launch {
-            // 1. Optimistically update the UI instantly
             _state.update { it.copy(isBiometricsEnabled = enabled) }
-
-            // 2. Persist the secure setting strictly to the local Room DB
             repository.updateBiometricPreference(merchantId, enabled)
         }
     }

@@ -9,6 +9,7 @@ import com.example.local_merchant.data.repository.MarketplaceRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,8 +40,6 @@ class ChatViewModel(
         viewModelScope.launch {
             repository.getRealInboxSummaries().collect { remoteSummaries ->
                 _inboxState.value = remoteSummaries.map { remote ->
-                    // 🛑 THE FIX: We stop intercepting the name. We trust the backend data!
-                    // If the backend accidentally sends a blank name, we fall back to "Client".
                     val displayName = remote.name.takeIf { it.isNotBlank() } ?: "Client"
 
                     ChatSummary(
@@ -60,9 +59,6 @@ class ChatViewModel(
         chatJob?.cancel()
         _messages.value = emptyList()
 
-        // A Live Chat Heartbeat!
-        // This loop forces the chat history to refresh every 2 seconds.
-        // If the WebSocket falls asleep during Razorpay, this manually pulls the "Thank you" message!
         chatJob = viewModelScope.launch {
             while (true) {
                 val refreshJob = launch {
@@ -70,12 +66,11 @@ class ChatViewModel(
                         _messages.value = history
                     }
                 }
-                kotlinx.coroutines.delay(2000)
-                refreshJob.cancel() // Restart collection to guarantee fresh data
+                delay(2000)
+                refreshJob.cancel()
             }
         }
 
-        // Change it to this:
         val url = "${AppConfig.WS_URL}ws/chat?conversation_id=$conversationId&user_id=$currentUserId"
         val request = Request.Builder().url(url).build()
 
@@ -122,7 +117,6 @@ class ChatViewModel(
     }
 
     override fun onCleared() {
-        super.onCleared()
         disconnectWebSocket()
     }
 }

@@ -21,7 +21,7 @@ import com.example.local_merchant.ui.components.Background
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DealHistoryScreen(
-    liveDeals: List<ActiveNegotiation>, // 🛑 Real data from the Go backend!
+    liveDeals: List<ActiveNegotiation>,
     onBack: () -> Unit
 ) {
     Background {
