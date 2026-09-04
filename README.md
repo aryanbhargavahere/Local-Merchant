@@ -1,23 +1,12 @@
 # 🛠️ Local-Merchant
 
 **An AI-Powered Service Marketplace for Local Tradeworkers**  
-*Built for Buildathon Track 1: AI for Growth & Commerce*
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-B125EA?style=for-the-badge&logo=kotlin&logoColor=white)
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
 ![Go](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)
 ![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
-
-## 🎯 Project Objective: What Problem Does It Solve?
-
-**The Core Problem: Frictional Local Commerce**  
-Currently, hiring local tradeworkers—like electricians, plumbers, or carpenters—is a highly manual, fragmented, and inefficient process. Customers make multiple phone calls and awkwardly haggle over service rates. Meanwhile, tradeworkers have to constantly put down their tools and pause active jobs just to answer phones and secure future bookings, which directly hurts their daily revenue.
-
-**The Solution: Autonomous AI Market-Making**  
-Local-Merchant eliminates this friction by introducing an AI-driven, real-time negotiation layer. The tradeworker sets a hidden "floor rate" parameter, and the customer inputs their budget. Two independent Large Language Model (LLM) agents instantly converse over a low-latency WebSocket connection, agreeing on a fair market rate within seconds. 
-
-By automating the negotiation and instantly routing agreed-upon deals into a secure Razorpay checkout, the platform guarantees that tradeworkers keep their schedules full and their payments secured, entirely hands-free.
 
 ---
 
@@ -200,4 +189,4 @@ go run .
 ---
 
 ## 🤝 Contributing
-Built as a submission for the Track 1 Buildathon. Feel free to fork the repository, submit pull requests, or open issues to discuss new features!
+Feel free to fork the repository, submit pull requests, or open issues to discuss new features!
