@@ -41,9 +41,13 @@ fun NegotiationChatScreen(
                     TextButton(onClick = {
                         val lastMerchantMsg = messages.lastOrNull { it.sender == "MERCHANT" }?.message ?: ""
 
-                        val regex = Regex("₹(\\d+)")
+                        // 🚀 THE FIX: Tell Regex to grab digits AND commas using [\d,]+
+                        val regex = Regex("₹([\\d,]+)")
                         val match = regex.find(lastMerchantMsg)
-                        val finalPrice = match?.groupValues?.get(1)?.toIntOrNull() ?: 0
+                        val rawPriceString = match?.groupValues?.get(1) ?: "0"
+
+                        // Strip out the comma before converting to an Integer
+                        val finalPrice = rawPriceString.replace(",", "").toIntOrNull() ?: 0
 
                         if (finalPrice > 0) {
                             com.example.local_merchant.ActiveCheckoutState.merchantId = merchantId

@@ -235,7 +235,7 @@ fun AppNavigation() {
             val merchantId = backStackEntry.arguments?.getString("merchantId") ?: ""
             val merchantName = backStackEntry.arguments?.getString("merchantName") ?: "Merchant"
 
-            val factory = remember { ViewModelFactory(repository, okHttpClient, merchantId) }
+            val factory = remember { ViewModelFactory(repository, okHttpClient, safeBuyerId) }
             val chatViewModel: ChatViewModel = viewModel(factory = factory)
 
             DisposableEffect(key1 = merchantId) {
@@ -271,9 +271,7 @@ fun AppNavigation() {
                 sellerPhone = sellerPhone,
                 viewModel = checkoutViewModel,
                 onPaymentSuccess = {
-                    // Drop the new navigation here!
                     navController.navigate("thank_you") {
-                        // This prevents the user from going back to the payment screen
                         popUpTo(navController.graph.startDestinationId) {
                             inclusive = true
                         }
@@ -382,9 +380,7 @@ fun AppNavigation() {
         composable("thank_you") {
             ThankYouScreen(
                 onDoneClick = {
-                    // 🟢 Replace "buyer_dashboard" with your EXACT route name for that screen
                     navController.navigate("buyer_dashboard") {
-                        // This completely wipes the history so they can't go back to the thank you screen
                         popUpTo(0)
                     }
                 }
