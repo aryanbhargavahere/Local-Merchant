@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="image_c75e88.png" alt="Local-Merchant Logo" width="500">
-</p>
-
 <h1 align="center">Local-Merchant</h1>
 
 <p align="center">
@@ -197,4 +193,4 @@ go run .
 ---
 
 ## 🤝 Contributing
-Built as a submission for the Track 1 Buildathon. Feel free to fork the repository, submit pull requests, or open issues to discuss new features!
+Feel free to fork the repository, submit pull requests, or open issues to discuss new features!
