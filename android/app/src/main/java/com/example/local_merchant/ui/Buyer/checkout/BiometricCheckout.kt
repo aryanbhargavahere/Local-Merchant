@@ -2,6 +2,7 @@ package com.example.local_merchant.ui.buyer.checkout
 
 import android.app.Activity
 import android.widget.Toast
+import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,6 +17,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import com.example.local_merchant.viewmodel.CheckoutViewModel
 import com.razorpay.Checkout
 import org.json.JSONObject
@@ -30,7 +33,9 @@ fun CheckoutScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val activity = context as? Activity
+
+    // 💡 CRUCIAL FIX: Cast exactly to FragmentActivity for the Biometric prompt!
+    val activity = context as? FragmentActivity
 
     val orderId by viewModel.orderId.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -85,7 +90,10 @@ fun CheckoutScreen(
                 Button(
                     onClick = {
                         if (activity != null) {
-                            launchRazorpay(activity, finalPrice, orderId!!, sellerPhone)
+                            // 🚀 THE FIX: Trigger biometrics first, then launch Razorpay on success!
+                            showBiometricPrompt(activity) {
+                                launchRazorpay(activity, finalPrice, orderId!!, sellerPhone)
+                            }
                         } else {
                             Toast.makeText(context, "UI Error: Cannot launch payment", Toast.LENGTH_SHORT).show()
                         }
@@ -127,4 +135,28 @@ private fun launchRazorpay(activity: Activity, amount: Int, orderId: String, sel
     } catch (e: Exception) {
         e.printStackTrace()
     }
+}
+
+fun showBiometricPrompt(
+    activity: FragmentActivity,
+    onSuccess: () -> Unit
+) {
+    val executor = ContextCompat.getMainExecutor(activity)
+
+    val biometricPrompt = BiometricPrompt(
+        activity, executor,
+        object : BiometricPrompt.AuthenticationCallback() {
+            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                super.onAuthenticationSucceeded(result)
+                onSuccess() // Trigger the payment!
+            }
+        })
+
+    val promptInfo = BiometricPrompt.PromptInfo.Builder()
+        .setTitle("Authorize Payment")
+        .setSubtitle("Verify your identity to lock in this rate")
+        .setNegativeButtonText("Cancel")
+        .build()
+
+    biometricPrompt.authenticate(promptInfo)
 }

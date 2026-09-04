@@ -14,6 +14,7 @@ import com.example.local_merchant.dependency.ViewModelFactory
 import com.example.local_merchant.ui.Buyer.BuyerDashboardScreen
 import com.example.local_merchant.ui.Buyer.chat.BuyerInboxScreen
 import com.example.local_merchant.ui.Buyer.BuyerSetupScreen
+import com.example.local_merchant.ui.Buyer.ThankYouScreen
 import com.example.local_merchant.ui.RoleSelection.RoleSelectionScreen
 import com.example.local_merchant.ui.Buyer.chat.NegotiationChatScreen
 import com.example.local_merchant.ui.Buyer.profile.BuyerEditProfileScreen
@@ -271,7 +272,14 @@ fun AppNavigation() {
                 sellerPhone = sellerPhone,
                 viewModel = checkoutViewModel,
                 onPaymentSuccess = {
-                    navController.popBackStack()
+                    // Drop the new navigation here!
+                    navController.navigate("thank_you") {
+                        // This prevents the user from going back to the payment screen
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
                 },
                 onBack = { navController.popBackStack() }
             )
@@ -370,6 +378,20 @@ fun AppNavigation() {
             OrderHistoryScreen(
                 pastOrders = realOrders,
                 onBack = { navController.popBackStack() }
+            )
+        }
+        composable("thank_you") {
+            ThankYouScreen(
+                onDoneClick = {
+                    // This navigates to the dashboard and completely clears
+                    // the backstack so they can't go back to the payment!
+                    navController.navigate("dashboard") {
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
             )
         }
     }

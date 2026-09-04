@@ -148,7 +148,7 @@ STRICT RULES:
     currentHistory := aiMemory.GetHistory(conversationID, merchantPrompt)
 
     payload := GroqRequestPayload{
-        Model:       "openai/gpt-oss-20b",
+        Model:       "qwen/qwen3.8-27b",
         Messages:    currentHistory,
         Temperature: 0.6,
     }

@@ -32,9 +32,18 @@ class MainActivity : FragmentActivity(), PaymentResultWithDataListener {
         actionBar?.hide()
         Checkout.preload(applicationContext)
 
+        // 🚀 Move these inside onCreate so the Context is fully ready!
+        val sharedPreferences = getSharedPreferences("merchant_settings", MODE_PRIVATE)
+        val isBiometricEnabled = sharedPreferences.getBoolean("biometric_enabled", false)
+
         setContent {
             LocalMerchantTheme {
-                AppNavigation()
+                BiometricAppLock(
+                    isBiometricEnabled = isBiometricEnabled,
+                    activity = this@MainActivity
+                ) {
+                    AppNavigation()
+                }
             }
         }
     }

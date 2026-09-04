@@ -7,12 +7,8 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-val localProperties = Properties()
-val localPropertiesFile = rootProject.file("local.properties")
-if (localPropertiesFile.exists()) {
-    localProperties.load(FileInputStream(localPropertiesFile))
-}
-val hostIp = localProperties.getProperty("DEV_HOST_IP") ?: "10.0.2.2"
+val properties = Properties()
+properties.load(project.rootProject.file("local.properties").inputStream())
 
 android {
     namespace = "com.example.local_merchant"
@@ -23,12 +19,15 @@ android {
     defaultConfig {
         applicationId = "com.example.local_merchant"
         minSdk = 24
-        targetSdk = 37
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "HOST_IP", "\"$hostIp\"")
+
+        // Inject the new live Render URLs
+        buildConfigField(type = "String", name = "BASE_URL", value = "\"${properties.getProperty("PROD_BASE_URL")}\"")
+        buildConfigField(type = "String", name = "WS_URL", value = "\"${properties.getProperty("PROD_WS_URL")}\"")
     }
 
     buildTypes {
@@ -93,7 +92,7 @@ dependencies {
     implementation("androidx.camera:camera-view:${camerax_version}")
 
     // AndroidX Biometric Authentication
-    implementation("androidx.biometric:biometric:1.1.0")
+    implementation("androidx.biometric:biometric:1.2.0-alpha05")
 
     // 1. Force the modern Activity Compose library
     implementation("androidx.activity:activity-compose:1.8.2")
