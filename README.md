@@ -1,25 +1,203 @@
-# Local-Merchant: AI Negotiation Platform
+# 🛠️ Local-Merchant
 
-![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white) ![Kotlin](https://img.shields.io/badge/kotlin-%237F52FF.svg?style=for-the-badge&logo=kotlin&logoColor=white) ![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white) ![Razorpay](https://img.shields.io/badge/Razorpay-02042B?style=for-the-badge&logo=razorpay&logoColor=3395FF)
+**An AI-Powered Service Marketplace for Local Tradeworkers**  
+*Built for Buildathon Track 1: AI for Growth & Commerce*
 
-Local-Merchant is a comprehensive full-stack marketplace designed to connect local buyers and sellers through autonomous AI negotiation agents. By leveraging a high-performance native Android client alongside a concurrent Go backend, the platform successfully handles real-time bidding, live chat synchronization, and secure digital checkout integrations.
+![Kotlin](https://img.shields.io/badge/Kotlin-B125EA?style=for-the-badge&logo=kotlin&logoColor=white)
+![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
+![Go](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
 
-## Core Features
+## 🎯 Project Objective: What Problem Does It Solve?
 
-* **Autonomous AI Agents:** LLM-powered buyer and seller agents negotiate dynamic pricing based on strict merchant floor rates and user budgets.
-* **Real-Time WebSockets:** Instant, bi-directional communication ensures live tracking and continuous updates of all ongoing negotiations.
-* **Secure Checkout:** An integrated Razorpay gateway handles immediate, secure transaction processing once a deal reaches a mutual agreement.
+**The Core Problem: Frictional Local Commerce**  
+Currently, hiring local tradeworkers—like electricians, plumbers, or carpenters—is a highly manual, fragmented, and inefficient process. Customers make multiple phone calls and awkwardly haggle over service rates. Meanwhile, tradeworkers have to constantly put down their tools and pause active jobs just to answer phones and secure future bookings, which directly hurts their daily revenue.
 
-## Tech Stack
+**The Solution: Autonomous AI Market-Making**  
+Local-Merchant eliminates this friction by introducing an AI-driven, real-time negotiation layer. The tradeworker sets a hidden "floor rate" parameter, and the customer inputs their budget. Two independent Large Language Model (LLM) agents instantly converse over a low-latency WebSocket connection, agreeing on a fair market rate within seconds. 
 
-* **Client Architecture:** Native Android utilizing Kotlin, Jetpack Compose, Retrofit, and StateFlow for reactive UI updates.
-* **Backend Infrastructure:** Built with Go using the standard `net/http` library, Gorilla WebSockets, and Mutex locks for memory state management.
-* **Third-Party Integrations:** Razorpay-Go SDK for payments and external LLM APIs for the core negotiation logic.
-* **Security Posture:** Implements strict `.env` backend secrets and dynamic `local.properties` configuration for safe Android IP injection.
+By automating the negotiation and instantly routing agreed-upon deals into a secure Razorpay checkout, the platform guarantees that tradeworkers keep their schedules full and their payments secured, entirely hands-free.
 
-## Getting Started
+---
 
-* **Backend Configuration:** Create a `.env` file in the backend directory containing `PORT`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and your chosen LLM API keys.
-* **Run Server:** Execute `go run main.go` to initialize the backend, which automatically binds to your local network interface.
-* **Android Configuration:** Add your specific machine IP as `DEV_HOST_IP=your_local_ip` inside the `local.properties` file in Android Studio.
-* **Launch Client:** Sync your Gradle files, build the APK, and run the application on an emulator or physical testing device.
+## ✨ Core Features
+
+*   **🤖 Autonomous Live Negotiation:** Dual AI agents (powered by the Groq API) handle dynamic price negotiations based on strict floor-rate parameters set by the tradeworker.
+*   **⚡ Ultra-Low Latency Chat:** A high-concurrency Go backend utilizes Gorilla WebSockets to stream negotiation packets instantly to the Android client.
+*   **💳 Seamless E-Commerce Flow:** Integrated Razorpay checkout triggers the exact millisecond a pricing consensus is reached.
+*   **🔐 Secure Local Storage:** Uses Android Room DB for local chat caching and Biometric App Lock for secure merchant access.
+
+---
+
+## 🏗️ Project Architecture & Structure
+
+```text
+# ==============================================================================
+#                      LOCAL MERCHANT - PROJECT ARCHITECTURE
+# ==============================================================================
+
+Local-Merchant (Android)
+├── Architecture Pattern : MVVM (Model-View-ViewModel) + Repository Pattern
+├── UI Framework         : Jetpack Compose + Material 3
+├── Real-Time Comm.      : WebSockets (OkHttp) & Coroutine Flows
+├── Networking           : Retrofit 2 + OkHttp Interceptors + Gson
+├── Local Storage        : Room Database + DataStore Preferences
+├── Security & Auth      : AndroidX Biometric API
+└── Payment Gateway      : Razorpay Checkout SDK
+
+--------------------------------------------------------------------------------
+                         HIGH-LEVEL DATA FLOW ARCHITECTURE
+--------------------------------------------------------------------------------
+
++------------------------------------------------------------------------------+
+|                               PRESENTATION LAYER                             |
+|                                                                              |
+|   [ Buyer Screens ]   <--->   [ Buyer ViewModels ]                           |
+|   - Marketplace                - BuyerDashboardViewModel                     |
+|   - Negotiation Chat           - ChatViewModel (WebSockets)                  |
+|   - Biometric Checkout         - CheckoutViewModel                           |
+|                                                                              |
+|   [ Merchant Screens ]  <--->  [ Merchant ViewModels ]                       |
+|   - Agent Setup                - MerchantViewModel                           |
+|   - Dashboard Stats            - MerchantDashboardViewModel                  |
+|   - Parameters & Rates         - MerchantProfileViewModel                    |
++------------------------------------------------------------------------------+
+                                       |
+                                       v
++------------------------------------------------------------------------------+
+|                                DOMAIN / REPO LAYER                           |
+|                                                                              |
+|                         [ MarketplaceRepository ]                            |
+|        Central Data Coordinator for REST APIs, WebSockets & Caching          |
++------------------------------------------------------------------------------+
+                                  /    |    \
+                                 /     |     \
+                                v      v      v
++------------------------------------------------------------------------------+
+|                                DATA SOURCE LAYER                             |
+|                                                                              |
+|  [ Remote Data Source ]     [ Local Data Source ]     [ Session / Security ] |
+|  - GoBackendApi (Retrofit)   - AppDatabase (Room)      - SessionManager      |
+|  - WebSockets (OkHttp)       - ChatDao                 - BiometricPrompt     |
+|  - Razorpay Payment API      - MerchantDao             - Encrypted Settings  |
++------------------------------------------------------------------------------+
+
+--------------------------------------------------------------------------------
+                            PACKAGE STRUCTURE TREE
+--------------------------------------------------------------------------------
+
+app/src/main/java/com/example/local_merchant/
+├── LocalMerchant.kt               # Application entry point & Database initializer
+├── MainActivity.kt                # FragmentActivity, Payment Result Listener & Biometric host
+├── BiometricAppLock.kt            # Biometric App Lock Security Wrapper
+│
+├── config/
+│   └── AppConfig.kt               # Secure Environment Configs (Injected via Gradle)
+│
+├── data/                          # Data Layer
+│   ├── local/                     # Room DB & Local Persistence
+│   │   ├── AppDatabase.kt         # Room Database Singleton
+│   │   ├── ChatDao.kt             # Chat Message Persistence DAO
+│   │   ├── ChatEntity.kt          # Room Entity for Messages
+│   │   ├── Sessionmanager.kt      # DataStore Preferences for User/Agent States
+│   │   └── merchant/
+│   │       ├── MerchantDao.kt     # Merchant Profile DAO
+│   │       └── MerchantEntity.kt  # Room Entity for Merchant Profiles
+│   │
+│   ├── model/                     # Domain & UI Models
+│   │   └── Model.kt               # Chat & Dashboard Stats Data Models
+│   │
+│   ├── remote/                    # Remote Network Layer
+│   │   ├── GoBackendApi.kt        # Retrofit Interface & ApiClient Engine
+│   │   └── NetworkModels.kt       # Request/Response DTOs & Razorpay Payload Specs
+│   │
+│   └── repository/                # Central Repository Pattern
+│       └── MarketPlaceRepository.kt # Handles Cache, REST API, & Live Inboxes
+│
+├── dependency/
+│   └── AppModule.kt               # DI Container & Custom ViewModelFactory
+│
+├── viewmodel/                     # Business Logic Layer
+│   ├── ChatViewModel.kt           # Real-Time WebSocket Messaging & Live Inbox State
+│   ├── CheckoutViewModel.kt       # Razorpay Order ID Generation & Checkout Flow
+│   ├── buyer/                     # Buyer-Specific ViewModels
+│   │   ├── BuyerDashBoardViewModel.kt
+│   │   ├── BuyerInboxViewModel.kt
+│   │   ├── BuyerProfileViewModel.kt
+│   │   └── BuyerViewModel.kt
+│   └── merchant/                  # Merchant-Specific ViewModels
+│       ├── MerchantDashBoardViewModel.kt
+│       ├── MerchantHistoryViewModel.kt
+│       ├── MerchantProfileViewModel.kt
+│       └── MerchantViewModel.kt
+│
+└── ui/                            # Jetpack Compose UI Layer
+    ├── components/                # Reusable Design Components (Backgrounds, Cards)
+    ├── theme/                     # Material3 Color Systems, Typography, & Themes
+    ├── navigation/
+    │   └── AppNavigation.kt       # Central NavHost Navigation Graph
+    │
+    ├── RoleSelection/             # App Mode Gateway (Buyer vs Merchant)
+    │
+    ├── Buyer/                     # Buyer Surface
+    │   ├── BuyerDashBoard.kt      # Live Pro Search & Category Filtering
+    │   ├── buyersetup.kt          # Buyer Registration
+    │   ├── PaymentFinish.kt       # Post-Checkout Confirmation
+    │   ├── chat/
+    │   │   ├── BuyerInbox.kt      # Negotiation Threads Inbox
+    │   │   └── NegotiationChat.kt # Interactive AI Price Negotiation Screen
+    │   ├── checkout/
+    │   │   └── BiometricCheckout.kt # Biometric Authorization & Razorpay Checkout
+    │   └── profile/
+    │       ├── BuyerProfile.kt    # User Account Overview
+    │       ├── EditProfile.kt     # Dynamic Profile Updates
+    │       └── OrderHistory.kt    # Completed Bookings & Receipts
+    │
+    └── merchant/                  # Merchant Surface
+        ├── MerchantDashboard.kt   # Live Revenue Trends & Active Deals Chart
+        ├── MerchantSetup.kt       # AI Agent Deployment Setup
+        ├── chat/
+        │   ├── ChatListScreen.kt  # Active Buyer Deal Conversations
+        │   └── ChatDetailScreen.kt# Real-Time Merchant Chat Window
+        └── profile/
+            ├── MerchantProfileScreen.kt # Account Settings & AI Toggle
+            └── internalui/
+                ├── AgentParameterScreen.kt # Base Rates, Floor Limits & Upsell Rules
+                └── DealHistory.kt          # Closed Deals Audit Trail
+```
+
+---
+
+## 🚀 Download & Installation
+
+The complete source code for both the native Android client and the Go backend can be downloaded directly from this GitHub repository.
+
+### 📥 Clone the Repository
+```bash
+git clone [https://github.com/yourusername/Local-Merchant.git](https://github.com/yourusername/Local-Merchant.git)
+cd Local-Merchant
+```
+
+### 1. Run the Go Backend (Linux/macOS/Windows)
+Ensure you have [Go](https://go.dev/dl/) installed on your machine.
+```bash
+cd BACKEND
+# Install dependencies
+go mod tidy
+# Set up your environment variables
+export GROQ_API_KEY="your_api_key_here"
+# Start the server
+go run .
+```
+
+### 2. Run the Android App
+1. Open the cloned `Local-Merchant` folder in **Android Studio**.
+2. Navigate to `com.example.local_merchant.dependency.AppModule`.
+3. Update the `BASE_URL` and `WS_URL` variables to point to your live Render deployment or local IP address.
+4. Sync the Gradle files and hit **Run** to install the app on your physical device or emulator.
+
+---
+
+## 🤝 Contributing
+Built as a submission for the Track 1 Buildathon. Feel free to fork the repository, submit pull requests, or open issues to discuss new features!
