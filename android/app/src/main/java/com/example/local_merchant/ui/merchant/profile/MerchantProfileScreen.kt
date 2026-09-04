@@ -44,7 +44,7 @@ fun MerchantProfileScreen(
     onLogout: () -> Unit
 ) {
     val context = LocalContext.current
-    // 💡 This is your central settings file! MainActivity will read from this.
+    // SharedPreferences for merchant settings
     val prefs = remember { context.getSharedPreferences("merchant_settings", Context.MODE_PRIVATE) }
 
     val dashboardState by viewModel.dashboardState.collectAsState()
@@ -160,7 +160,7 @@ fun MerchantProfileScreen(
                                 isChecked = isBiometricOn,
                                 onCheckedChange = {
                                     isBiometricOn = it
-                                    // 🚀 This instantly saves the toggle state to SharedPreferences
+                                    // Save biometric setting preference
                                     prefs.edit().putBoolean("biometric_enabled", it).apply()
                                 }
                             )

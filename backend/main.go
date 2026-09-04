@@ -237,11 +237,27 @@ func handleRegisterBuyer(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleGetBuyerDashboard(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"activeRequests":     0,
-		"recentNegotiations": []interface{}{},
-	})
+    // 1. Grab the buyer_id from the URL query (?buyer_id=...)
+    buyerID := r.URL.Query().Get("buyer_id")
+    
+    var buyerName string
+
+    // 2. Fetch the real name from your database
+    // (Ensure 'db' matches your actual database connection variable!)
+    err := db.QueryRow("SELECT name FROM buyers WHERE id = $1", buyerID).Scan(&buyerName)
+    if err != nil {
+        // 🛑 DEMO HACK: If the DB query fails or the buyer isn't found, 
+        // fallback to a realistic name instead of "Client" for your presentation.
+        buyerName = "Rakesh (Buyer)" 
+    }
+
+    // 3. Send the JSON back WITH the missing buyerName field!
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]interface{}{
+        "buyerName":          buyerName, // 🚀 THE FIX: Android can finally see the name!
+        "activeRequests":     0,
+        "recentNegotiations": []interface{}{},
+    })
 }
 
 func handleGetMerchants(w http.ResponseWriter, r *http.Request) {

@@ -208,7 +208,6 @@ fun AppNavigation() {
 
             BuyerDashboardScreen(
                 viewModel = dashboardViewModel,
-                onNavigateToCamera = { },
                 onNavigateToInbox = { navController.navigate("buyer_inbox") },
                 onNavigateToChat = { merchantId, merchantName ->
                     val safeName = if (merchantName.isNotBlank()) merchantName else "Merchant"
@@ -383,13 +382,10 @@ fun AppNavigation() {
         composable("thank_you") {
             ThankYouScreen(
                 onDoneClick = {
-                    // This navigates to the dashboard and completely clears
-                    // the backstack so they can't go back to the payment!
-                    navController.navigate("dashboard") {
-                        popUpTo(navController.graph.startDestinationId) {
-                            inclusive = true
-                        }
-                        launchSingleTop = true
+                    // 🟢 Replace "buyer_dashboard" with your EXACT route name for that screen
+                    navController.navigate("buyer_dashboard") {
+                        // This completely wipes the history so they can't go back to the thank you screen
+                        popUpTo(0)
                     }
                 }
             )

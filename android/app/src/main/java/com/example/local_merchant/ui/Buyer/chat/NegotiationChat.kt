@@ -31,7 +31,6 @@ fun NegotiationChatScreen(
     val context = LocalContext.current
 
     Scaffold(
-        // 🛑 THE KEYBOARD FIX: This makes the Scaffold ride up with the keyboard!
         modifier = Modifier
             .fillMaxSize()
             .imePadding(),

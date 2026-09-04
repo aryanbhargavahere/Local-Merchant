@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-// 🛑 RENAMED: This forces Android Studio to recognize the new file!
 fun BuyerEditProfileScreen(
     currentName: String,
     currentPhone: String,

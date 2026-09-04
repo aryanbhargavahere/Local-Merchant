@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.Response
 
-// NOTE: Add this to your NetworkModels.kt later. Placed here to ensure your code compiles immediately.
+// Model for buyer profile data
 data class BuyerProfileResponse(
     val id: String = "",
     val name: String = "",
@@ -302,4 +302,54 @@ class MarketplaceRepository(
             null
         }
     }
+
+    // ==========================================
+    // MERCHANT INBOX GENERATOR
+    // ==========================================
+    fun getMerchantInboxSummaries(currentMerchantId: String): Flow<List<com.example.local_merchant.data.remote.ChatSummary>> = flow {
+        chatDao.getAllChats().collect { allChats ->
+            // 1. Group messages by the BUYER'S ID, not the Merchant's ID
+            val groupedChats = allChats.groupBy { msg ->
+                if (msg.sender == currentMerchantId) {
+                    msg.merchantId // Our outgoing messages hold the buyer ID here
+                } else {
+                    msg.sender // Incoming messages hold the buyer ID in sender
+                }
+            }
+
+            val dynamicInbox = mutableListOf<com.example.local_merchant.data.remote.ChatSummary>()
+
+            // 2. Loop through each chat thread to fetch the real buyer's name
+            for ((buyerId, messages) in groupedChats) {
+                val lastMessage = messages.last()
+                var buyerName = "Client"
+
+                try {
+                    // Try to fetch the real buyer profile from the Go backend!
+                    val response = api.getBuyerDashboard(buyerId)
+                    if (response.isSuccessful && response.body() != null) {
+                        buyerName = response.body()!!.buyerName ?: "Client"
+                    }
+                } catch (e: Exception) {
+                    // If network fails, default to a safe generic name
+                    val safeId = if (buyerId.length >= 4) buyerId.take(4) else buyerId
+                    buyerName = "Client ($safeId)"
+                }
+
+                dynamicInbox.add(
+                    com.example.local_merchant.data.remote.ChatSummary(
+                        id = buyerId,
+                        name = buyerName,
+                        lastMessage = lastMessage.message,
+                        time = "Recent",
+                        unreadCount = 0,
+                        initials = buyerName.take(1).uppercase()
+                    )
+                )
+            }
+
+            emit(dynamicInbox.reversed())
+        }
+    }
 }
+

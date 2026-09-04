@@ -30,7 +30,6 @@ import com.example.local_merchant.viewmodel.buyer.BuyerInboxViewModel
 @Composable
 fun BuyerInboxScreen(
     viewModel: BuyerInboxViewModel,
-    // 🛑 PASSING THE NAME AND ID
     onNavigateToChat: (String, String) -> Unit,
     onNavigateToDashboard: () -> Unit,
     onNavigateToProfile: () -> Unit
@@ -109,7 +108,6 @@ fun BuyerInboxScreen(
                     items(chats) { chat ->
                         InboxItem(
                             chat = chat,
-                            // 🛑 SENDS THE REAL NAME INSTEAD OF FALLBACK
                             onClick = { onNavigateToChat(chat.id, chat.name.takeIf { it.isNotBlank() } ?: "Merchant") }
                         )
                     }
@@ -119,7 +117,6 @@ fun BuyerInboxScreen(
     }
 }
 
-// ... (Your InboxItem composable stays exactly the same)
 @Composable
 fun InboxItem(chat: ChatSummary, onClick: () -> Unit) {
     Card(

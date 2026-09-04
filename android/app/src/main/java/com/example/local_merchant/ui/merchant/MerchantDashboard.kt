@@ -34,7 +34,6 @@ fun MerchantDashboardScreen(
     viewModel: MerchantDashboardViewModel,
     onNavigateToChats: () -> Unit,
     onNavigateToProfile: () -> Unit
-    // 🛑 History Navigation Parameter Removed
 ) {
     val state by viewModel.dashboardState.collectAsState()
 
@@ -42,7 +41,6 @@ fun MerchantDashboardScreen(
         Scaffold(
             containerColor = Color.Transparent,
             bottomBar = {
-                // 🛑 Bottom Nav Call Updated
                 MerchantBottomNav(
                     currentRoute = "merchant_dashboard",
                     onNavigateToDashboard = {},

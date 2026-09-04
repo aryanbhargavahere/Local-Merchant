@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import com.example.local_merchant.ActiveCheckoutState
 import com.example.local_merchant.viewmodel.CheckoutViewModel
 import com.razorpay.Checkout
 import org.json.JSONObject
@@ -34,7 +35,6 @@ fun CheckoutScreen(
 ) {
     val context = LocalContext.current
 
-    // 💡 CRUCIAL FIX: Cast exactly to FragmentActivity for the Biometric prompt!
     val activity = context as? FragmentActivity
 
     val orderId by viewModel.orderId.collectAsState()
@@ -43,6 +43,13 @@ fun CheckoutScreen(
     // Dynamically trigger the Go server call the moment the screen opens
     LaunchedEffect(finalPrice) {
         viewModel.fetchOrderId(finalPrice)
+    }
+
+    // Listen for MainActivity payment success signal
+    LaunchedEffect(Unit) {
+        ActiveCheckoutState.paymentSuccessSignal.collect {
+            onPaymentSuccess()
+        }
     }
 
     Scaffold(
@@ -90,7 +97,6 @@ fun CheckoutScreen(
                 Button(
                     onClick = {
                         if (activity != null) {
-                            // 🚀 THE FIX: Trigger biometrics first, then launch Razorpay on success!
                             showBiometricPrompt(activity) {
                                 launchRazorpay(activity, finalPrice, orderId!!, sellerPhone)
                             }
@@ -115,7 +121,6 @@ fun CheckoutScreen(
 
 private fun launchRazorpay(activity: Activity, amount: Int, orderId: String, sellerPhone: String) {
     val checkout = Checkout()
-    // ⚠️ YOU MUST PASTE YOUR ACTUAL RAZORPAY TEST KEY HERE!
     checkout.setKeyID("rzp_test_TViNHBKbdqnQXr")
 
     try {

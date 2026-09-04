@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,9 +28,7 @@ import com.example.local_merchant.viewmodel.buyer.BuyerDashboardViewModel
 @Composable
 fun BuyerDashboardScreen(
     viewModel: BuyerDashboardViewModel,
-    onNavigateToCamera: () -> Unit,
     onNavigateToInbox: () -> Unit,
-    // 🛑 THE FIX: Now expects BOTH the Merchant ID and Name
     onNavigateToChat: (String, String) -> Unit,
     onNavigateToProfile: () -> Unit
 ) {
@@ -65,16 +62,6 @@ fun BuyerDashboardScreen(
                     onClick = onNavigateToProfile
                 )
             }
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = onNavigateToCamera,
-                icon = { Icon(Icons.Outlined.Search, "Scan Issue") },
-                text = { Text("AI Auto-Scan") },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp)
-            )
         }
     ) { paddingValues ->
         Box(
@@ -169,7 +156,6 @@ fun BuyerDashboardScreen(
                             items(state.filteredMerchants) { merchant ->
                                 MerchantCard(
                                     merchant = merchant,
-                                    // 🛑 THE FIX: Passing BOTH variables out of the card
                                     onHireClick = { onNavigateToChat(merchant.id, merchant.name) },
                                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
                                 )
@@ -258,21 +244,18 @@ fun MerchantCard(merchant: MerchantData, onHireClick: () -> Unit, modifier: Modi
 
             Spacer(modifier = Modifier.height(20.dp))
 
+            // Centered starting rate display
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.Center
             ) {
-                Column {
-                    Text(text = "Starting from", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(text = "₹${merchant.baseRate}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                }
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(text = "Floor Rate", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(text = "₹${merchant.floorRate}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = "Rates starting from", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(text = "₹${merchant.baseRate}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 }
             }
 

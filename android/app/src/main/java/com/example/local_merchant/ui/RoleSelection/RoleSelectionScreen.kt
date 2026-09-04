@@ -36,7 +36,7 @@ fun RoleSelectionScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "AutoTrade Gateway",
+                text = "Local Merchant",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
@@ -44,7 +44,7 @@ fun RoleSelectionScreen(
             )
 
             Text(
-                text = "Choose how you'll trade today",
+                text = "Choose how you'll trade today ",
                 fontSize = 16.sp,
                 color = Color.Gray,
                 modifier = Modifier.padding(bottom = 48.dp)

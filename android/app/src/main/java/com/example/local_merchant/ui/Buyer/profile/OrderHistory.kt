@@ -19,8 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-// 🛑 A clean data structure for the list.
-// If your backend uses a different name for past orders, you can map it to this!
+// Data structure representing buyer past orders
 data class BuyerOrderData(
     val id: String,
     val merchantName: String,
@@ -32,7 +31,7 @@ data class BuyerOrderData(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderHistoryScreen(
-    pastOrders: List<BuyerOrderData>, // 🛑 DYNAMIC: Only displays what is passed to it
+    pastOrders: List<BuyerOrderData>,
     onBack: () -> Unit
 ) {
     Scaffold(

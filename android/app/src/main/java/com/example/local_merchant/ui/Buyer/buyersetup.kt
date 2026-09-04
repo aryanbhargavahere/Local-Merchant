@@ -82,7 +82,6 @@ fun BuyerSetupScreen(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
             )
 
-            // 🛑 THE FIX: Phone number locked to 10 digits and numeric keypad
             OutlinedTextField(
                 value = phone,
                 onValueChange = { newValue ->

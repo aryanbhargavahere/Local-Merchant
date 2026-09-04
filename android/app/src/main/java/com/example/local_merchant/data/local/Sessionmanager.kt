@@ -24,7 +24,7 @@ class SessionManager(private val context: Context) {
         val BUYER_NAME_KEY = stringPreferencesKey("buyer_name")
         val BUYER_PHONE_KEY = stringPreferencesKey("buyer_phone")
 
-        // 🛑 ADDED: Keys for Agent Parameters
+        // Keys for Agent Parameters
         val BASE_RATE_KEY = intPreferencesKey("base_rate")
         val FLOOR_RATE_KEY = intPreferencesKey("floor_rate")
     }

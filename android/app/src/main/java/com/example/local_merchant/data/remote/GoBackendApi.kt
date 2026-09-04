@@ -17,10 +17,8 @@ import java.util.concurrent.TimeUnit
 import okhttp3.ResponseBody
 import retrofit2.http.Headers
 
-// 1. The Interface (The Map)
+// Retrofit interface for Go backend communication
 interface GoBackendApi {
-
-    // --- Existing Routes ---
 
     @POST("/api/merchants")
     suspend fun registerMerchant(@Body request: RegisterMerchantRequest): Response<MerchantResponse>
@@ -34,11 +32,9 @@ interface GoBackendApi {
     @POST("/api/interact")
     suspend fun interactiveNegotiation(@Body request: HumanNegotiateRequest): Response<NegotiateResponse>
 
-    // --- Updated Chat Routes ---
     @GET("/api/chat/history")
     suspend fun getChatHistory(@Query("conversation_id") conversationId: String): Response<List<ChatMessage>>
 
-    // --- NEW Production Routes ---
     @GET("/api/merchant/profile")
     suspend fun getMerchantProfile(@Query("merchant_id") merchantId: String): Response<MerchantProfileResponse>
 
@@ -54,11 +50,9 @@ interface GoBackendApi {
     @GET("api/merchants")
     suspend fun getMerchants(): retrofit2.Response<List<com.example.local_merchant.data.remote.MerchantData>>
 
-    // 🛑 THE FIX: URL exactly matches the Go server now!
     @POST("/create-order")
     suspend fun createRazorpayOrder(@Body request: OrderRequest): Response<OrderResponse>
 
-    // 🛑 THE FIX: ResponseBody completely bypasses JSON parsing crashes!
     @POST("/api/payment-success")
     suspend fun confirmPayment(@Body request: PaymentSuccessRequest): Response<ResponseBody>
 
@@ -72,7 +66,7 @@ interface GoBackendApi {
 }
 
 
-// 2. The Client Builder (The Engine)
+// ApiClient singleton instance
 object ApiClient {
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

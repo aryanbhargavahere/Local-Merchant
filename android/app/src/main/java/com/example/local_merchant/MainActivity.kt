@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 object ActiveCheckoutState {
     var merchantId: String = ""
     var amount: Int = 0
-    // 🛑 THE BRIDGE: This flow will signal the UI when the payment is done
+    // Flow that signals the UI when payment succeeds
     val paymentSuccessSignal = MutableSharedFlow<Unit>()
 }
 
@@ -32,7 +32,6 @@ class MainActivity : FragmentActivity(), PaymentResultWithDataListener {
         actionBar?.hide()
         Checkout.preload(applicationContext)
 
-        // 🚀 Move these inside onCreate so the Context is fully ready!
         val sharedPreferences = getSharedPreferences("merchant_settings", MODE_PRIVATE)
         val isBiometricEnabled = sharedPreferences.getBoolean("biometric_enabled", false)
 
@@ -67,7 +66,7 @@ class MainActivity : FragmentActivity(), PaymentResultWithDataListener {
             }
         }
 
-        // 🛑 THE FIX: Tell the Compose UI to drop the checkout screen!
+        // Signal the UI to drop the checkout screen
         GlobalScope.launch(Dispatchers.Main) {
             ActiveCheckoutState.paymentSuccessSignal.emit(Unit)
         }

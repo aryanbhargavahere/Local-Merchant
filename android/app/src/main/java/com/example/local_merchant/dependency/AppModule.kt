@@ -70,12 +70,12 @@ class ViewModelFactory(
                 MerchantProfileViewModel(repository, merchantId) as T
             }
 
-            // 2. Chat ViewModel (THE FIX IS HERE)
+            // 2. Chat ViewModel
             modelClass.isAssignableFrom(ChatViewModel::class.java) -> {
                 require(merchantId.isNotBlank()) { "userId is required for ChatViewModel" }
                 ChatViewModel(
                     repository = repository,
-                    currentUserId = merchantId, // 🛑 FIXED: Passing the logged-in user's ID to currentUserId!
+                    currentUserId = merchantId,
                     okHttpClient = okHttpClient
                 ) as T
             }

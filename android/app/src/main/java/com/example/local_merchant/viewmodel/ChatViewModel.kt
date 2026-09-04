@@ -38,8 +38,9 @@ class ChatViewModel(
 
     init {
         viewModelScope.launch {
-            repository.getRealInboxSummaries().collect { remoteSummaries ->
+            repository.getMerchantInboxSummaries(currentUserId).collect { remoteSummaries ->
                 _inboxState.value = remoteSummaries.map { remote ->
+
                     val displayName = remote.name.takeIf { it.isNotBlank() } ?: "Client"
 
                     ChatSummary(
@@ -80,7 +81,9 @@ class ChatViewModel(
                     try {
                         val incomingMsg = gson.fromJson(text, ChatEntity::class.java)
                         incomingMsg.timestamp = System.currentTimeMillis()
-                        if (incomingMsg.merchantId == conversationId) {
+
+                        // Verify message belongs to active conversation
+                        if (incomingMsg.sender == conversationId || incomingMsg.merchantId == conversationId) {
                             repository.saveIncomingMessage(incomingMsg)
                         }
                     } catch (e: Exception) {
@@ -102,12 +105,15 @@ class ChatViewModel(
 
     fun sendChatMessage(conversationId: String, text: String) {
         if (text.isBlank()) return
+
         val outgoingMsg = ChatEntity(
+            // Store conversation ID in merchantId
             merchantId = conversationId,
             sender = currentUserId,
             message = text,
             timestamp = System.currentTimeMillis()
         )
+
         val jsonPayload = gson.toJson(outgoingMsg)
         webSocket?.send(jsonPayload)
 

@@ -107,7 +107,6 @@ data class ChatSummary(
     @SerializedName("Initials") val initials: String
 )
 
-// 🛑 THE FIX: Proper JSON translation for the Go Server!
 data class OrderRequest(
     @SerializedName("amount")
     val finalPrice: Int
